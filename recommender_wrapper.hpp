@@ -9,6 +9,7 @@ private:
     unordered_map<int, int> row_index_to_movie_id;
     unordered_map<int, int> user_id_to_col_index;
     unordered_map<int, int> col_index_to_user_id;
+    unordered_map<int, top_list> user_to_movie_reccomendations;
     vector<vector<double>> rating_matrix;
     vector<vector<bool>> is_rated_matrix;
     vector<vector<double>> double_similarity_matrix;
@@ -29,7 +30,7 @@ public:
         this->initialize_matrix();
 
         // import the ratings from the csv file into the marix
-        // this->populate_rating_matrix();
+        this->populate_rating_matrix();
 
         // // this will normalize the rating vectors for each movie
         // this->center_rating_vectors();
@@ -52,7 +53,10 @@ public:
 
         this->load_predicted_scores_from_file();
 
-        this->export_rating_matrix();
+        this->generate_movie_recommendations();
+
+        this->export_reccomendations();
+
     }
 
     double c(int i, int j)
@@ -395,5 +399,42 @@ public:
 
     }
 
+    void generate_movie_recommendations(void)
+    {
+        int i = 0, j = 0;
+
+        cout << "here" << endl;
+
+        for (i = 0; i < this->total_number_movies; ++i)
+        {
+            for (j = 0; j < this->total_number_users; ++j)
+            {
+                this->user_to_movie_reccomendations[this->col_index_to_user_id[j]]._add_item(this->row_index_to_movie_id[i], this->rating_matrix[i][j]);
+            }
+        }
+    }
+
+    void export_reccomendations(void)
+    {
+        ofstream output_stream("reccomendations.txt", std::ios::out);
+        vector<item_sim_pair> temp;
+        int i = 0;
+
+        for (auto it = this->user_to_movie_reccomendations.begin(); it != this->user_to_movie_reccomendations.end(); ++it)
+        {
+            temp = it->second.get_list();
+
+            output_stream << it->first;
+
+            for (i = 0; i < temp.size(); ++i)
+            {
+                output_stream << " " << temp[i].get_item_id();
+            }
+
+            output_stream << endl;
+        }
+
+        output_stream.close();
+    }
 };
 

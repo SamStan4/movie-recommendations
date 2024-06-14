@@ -30,6 +30,13 @@ public:
         }
     }
 
+    void _add_item(int item_id, double item_score)
+    {
+        item_sim_pair item;
+        item.set_both_attributes(item_id, item_score);
+        this->add_item(item);
+    }
+
     vector<item_sim_pair> get_list(void)
     {
         return this->list;
