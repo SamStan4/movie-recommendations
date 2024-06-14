@@ -27,6 +27,7 @@ using std::stoi;
 using std::stod;
 using std::sqrt;
 using std::sort;
+using std::reverse;
 
 #define RATINGS_FILE_PATH "./movie-lens-data/ratings.csv"
 #define GIVEN_NEIGHBORHOOD_SIZE 5

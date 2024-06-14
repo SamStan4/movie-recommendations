@@ -42,6 +42,9 @@ public:
         // this->export_similarity_matrix();
 
         this->populate_similariity_pair_matrix();
+
+        this->sort_similarity_matrix();
+
         this->export_similarity_pair_matrix();
     }
 
@@ -87,12 +90,14 @@ public:
         for (auto it = movie_id_set.begin(); it != movie_id_set.end(); ++it, ++i)
         {
             this->movie_id_to_row_index[*it] = i; 
+            this->row_index_to_movie_id[i] = *it;
         }
         
         i = 0;
         for (auto it = user_id_set.begin(); it != user_id_set.end(); ++it, ++i)
         {
             this->user_id_to_col_index[*it] = i;
+            this->col_index_to_user_id[i] = *it;
         }
 
         this->total_number_movies = movie_id_set.size();
@@ -275,6 +280,16 @@ public:
             }
 
             output_stream << endl;
+        }
+    }
+
+    void sort_similarity_matrix(void)
+    {
+        int i = 0;
+        for (i = 0; i < this->total_number_movies; ++i)
+        {
+            sort(this->similarity_matrix[i].begin(), this->similarity_matrix[i].end());
+            reverse(this->similarity_matrix[i].begin(), this->similarity_matrix[i].end());
         }
     }
 
