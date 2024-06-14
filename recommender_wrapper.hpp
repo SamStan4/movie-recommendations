@@ -37,8 +37,9 @@ public:
         // build this for more efficent cosine calculations :)
         this->populate_row_to_euclidean_distance();
 
-        this->populate_similarity_matrix();
-        this->export_similarity_matrix();
+        // this->populate_similarity_matrix();
+        this->load_similarity_matrix_from_file();
+        // this->export_similarity_matrix();
     }
 
     double c(int i, int j)
@@ -222,5 +223,57 @@ public:
             output_stream << endl;
         }
     }
+
+    void load_similarity_matrix_from_file(void)
+    {
+        ifstream input_stream("./results.txt", std::ios::in);
+        vector<string> line_split;
+        string line;
+        int i = 0, j = 0;
+
+        for (i = 0; getline(input_stream, line); ++i)
+        {
+            split_line(line_split, line, ',');
+
+            for (j = 0; j < line_split.size(); ++j)
+            {
+                this->rating_matrix[i][j] = stod(line_split[j]);
+            }
+        }
+
+        input_stream.close();
+    }
+
+    void populate_similariity_pair_matrix(void)
+    {
+        int i = 0, j = 0;
+
+        for (i = 0; i < this->total_number_movies; ++i)
+        {
+            for (j = 0; j < this->total_number_movies; ++j)
+            {
+                this->similarity_matrix[i][j].set_both_attributes(this->row_index_to_movie_id[j], this->double_similarity_matrix[i][j]);
+            }
+        }
+    }
+
+    void export_similarity_pair_matrix(void)
+    {
+        ofstream output_stream("./results.txt", std::ios::out);
+        int i = 0, j = 0;
+
+        for (i = 0; i < this->total_number_movies; ++i)
+        {
+            output_stream << this->row_index_to_movie_id[i] << "-";
+
+            for (j = 0; j < this->total_number_movies; ++j)
+            {
+                output_stream << "|" << this->similarity_matrix[i][j].get_item_id() << "," << this->similarity_matrix[i][j].get_sim_score() << "|";
+            }
+
+            output_stream << endl;
+        }
+    }
+
 };
 
