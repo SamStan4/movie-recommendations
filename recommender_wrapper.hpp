@@ -1,6 +1,6 @@
 #pragma once
 
-#include "item_sim_pair.hpp"
+#include "top_list.hpp"
 
 class recommender_wrapper
 {
@@ -29,23 +29,30 @@ public:
         this->initialize_matrix();
 
         // import the ratings from the csv file into the marix
-        this->populate_rating_matrix();
+        // this->populate_rating_matrix();
 
-        // this will normalize the rating vectors for each movie
-        this->center_rating_vectors();
+        // // this will normalize the rating vectors for each movie
+        // this->center_rating_vectors();
 
-        // build this for more efficent cosine calculations :)
-        this->populate_row_to_euclidean_distance();
+        // // build this for more efficent cosine calculations :)
+        // this->populate_row_to_euclidean_distance();
 
-        this->populate_similarity_matrix();
-        // this->load_similarity_matrix_from_file();
+        // this->populate_similarity_matrix();
+        // // this->load_similarity_matrix_from_file();
         // this->export_similarity_matrix();
 
-        this->populate_similariity_pair_matrix();
+        // this->populate_similariity_pair_matrix();
 
-        this->sort_similarity_matrix();
+        // this->sort_similarity_matrix();
 
-        this->export_similarity_pair_matrix();
+        // this->populate_rating_prediction_matrix();
+
+
+        // this->export_similarity_pair_matrix();
+
+        this->load_predicted_scores_from_file();
+
+        this->export_rating_matrix();
     }
 
     double c(int i, int j)
@@ -291,6 +298,101 @@ public:
             sort(this->similarity_matrix[i].begin(), this->similarity_matrix[i].end());
             reverse(this->similarity_matrix[i].begin(), this->similarity_matrix[i].end());
         }
+    }
+
+    void populate_rating_prediction_matrix(void)
+    {
+        int i = 0, j = 0;
+
+        cout << "here" << endl;
+
+        for (i = 0; i < this->total_number_movies; ++i)
+        {
+            for (j = 0; j < this->total_number_users; ++j)
+            {
+                if (!this->is_rated_matrix[i][j])
+                {
+                    this->rating_matrix[i][j] = this->make_rating_prediction(i, j);
+                }
+            }
+        }
+    }
+
+    double make_rating_prediction(int movie_idx, int user_idx)
+    {
+        // get movies similar to the current movie, that the user has rated
+
+        int i = 0, j = 0;
+        double numerator = 0, denominator = 0;
+        top_list user_top_similar;
+
+        for (i = 0, j = 0; (j < 5) && (i < this->total_number_movies); ++i)
+        {
+            if (this->is_rated_matrix[this->movie_id_to_row_index[this->similarity_matrix[movie_idx][i].get_item_id()]][user_idx])
+            {
+                ++j;
+                numerator += this->similarity_matrix[movie_idx][i].get_sim_score() * this->rating_matrix[this->movie_id_to_row_index[this->similarity_matrix[movie_idx][i].get_item_id()]][user_idx];
+                denominator += this->similarity_matrix[movie_idx][i].get_sim_score();
+            }
+        }
+
+        return max(numerator / denominator, 1.0);
+    }
+
+    void export_rating_matrix(void)
+    {
+        ofstream output_stream("./AAA.csv", std::ios::out);
+        int i = 0, j = 0;
+        
+        output_stream << ",";
+
+        for (i = 0; i < this->total_number_users; ++i)
+        {
+            output_stream << this->col_index_to_user_id[i] << ",";
+        }
+
+        output_stream << endl;
+
+        for (i = 0; i < this->total_number_movies; ++i)
+        {
+            output_stream << this->row_index_to_movie_id[i] << ",";
+
+            for (j = 0; j < this->total_number_users; ++j)
+            {
+                output_stream << this->rating_matrix[i][j] << ",";
+            }
+
+            output_stream << endl;
+        }
+
+        output_stream.close();
+    }
+
+    void load_predicted_scores_from_file(void)
+    {
+        ifstream input_stream("./AAA.csv", std::ios::in);
+        string line;
+        vector<string> line_split, user_header;
+        int i = 0, movie_idx, user_idx;
+
+        getline(input_stream, line);
+
+        split_line(user_header, line, ',');
+
+        while (getline(input_stream, line))
+        {
+            split_line(line_split, line, ',');
+
+            movie_idx = this->movie_id_to_row_index[stoi(line_split[0])];
+
+            for (i = 1; i < line_split.size(); ++i)
+            {
+                user_idx = this->user_id_to_col_index[stoi(user_header[i-1])];
+
+                this->rating_matrix[movie_idx][user_idx] = stod(line_split[i]);
+            }
+        }
+
     }
 
 };
