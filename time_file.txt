@@ -27,3 +27,9 @@ here
 real	12m23.264s
 user	12m21.797s
 sys	0m1.299s
+here
+here
+
+real	11m57.389s
+user	11m56.536s
+sys	0m0.790s
