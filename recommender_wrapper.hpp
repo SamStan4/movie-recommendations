@@ -37,9 +37,12 @@ public:
         // build this for more efficent cosine calculations :)
         this->populate_row_to_euclidean_distance();
 
-        // this->populate_similarity_matrix();
-        this->load_similarity_matrix_from_file();
+        this->populate_similarity_matrix();
+        // this->load_similarity_matrix_from_file();
         // this->export_similarity_matrix();
+
+        this->populate_similariity_pair_matrix();
+        this->export_similarity_pair_matrix();
     }
 
     double c(int i, int j)
