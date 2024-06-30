@@ -1,2 +1,2 @@
-<h1>movie reccomendations</h1>
-<p>Implemented simple movie reccomender system using item to item collaborative filtering</p>
+<h1>Movie Recommendations</h1>
+<p>Implemented a simple movie recommender system using item-to-item collaborative filtering.</p>
